@@ -4,8 +4,22 @@ from PIL import Image
 import streamlit as st
 import streamlit_authenticator as stauth
 import requests
+from streamlit_lottie import st_lottie
+import json
 
-im = Image.open("icon.png")
+icon = Image.open("icon.png")
+
+def load_lottiefile(filepath:str):
+    with open(filepath, "r") as f:
+        return json.load(f)
+    
+partlycloudy=load_lottiefile('Animations/partlycloudy.json')
+raining=load_lottiefile('Animations/raining.json')
+snow=load_lottiefile('Animations/snow.json')
+foghaze=load_lottiefile('Animations/foghaze.json')
+sunny=load_lottiefile('Animations/sunny.json')
+defaultweather=load_lottiefile('Animations/defaultweather.json')
+
 
 # Function to retrieve weather data from API
 def get_weather(city):
@@ -17,7 +31,7 @@ def get_weather(city):
     return data
 
 def weather_display():
-    st.title('Weather Display')
+    st.title('SkyCast Weather Display')
     st.markdown("<p style='font-size: 30px; margin-bottom: 0.1px;'>Enter city name</p>", unsafe_allow_html=True)
     city = st.text_input('', 'Cambridge, UK', max_chars=20)  # Default city, max_chars limits the input length
     weather_data = get_weather(city)
@@ -26,33 +40,28 @@ def weather_display():
         st.markdown(f"<p style='font-size: 24px;'>Temperature: {weather_data['main']['temp']} °C</p>", unsafe_allow_html=True)
     else:
         st.error('Failed to retrieve weather data.')
+        
+    weather_description = weather_data['weather'][0]['description'].lower()
+    
+    
+    if 'cloud' in weather_description:
+        st_lottie(partlycloudy,height=400, width=400)
+    elif 'rain' in weather_description:
+        st_lottie(raining,height=400, width=400)
+    elif 'snow' in weather_description:
+        st_lottie(snow,height=400, width=400)
+    elif 'fog' or 'haze' in weather_description:
+        st_lottie(foghaze,height=400, width=400)
+    elif 'sun' in weather_description:
+        st_lottie(sunny,height=400, width=400)
+    else:
+        st_lottie(defaultweather,height=400, width=400)
 
+    
 
 def main():
-    # emojis: https://www.webfx.com/tools/emoji-cheat-sheet/
-    st.set_page_config(page_title="Weather App", page_icon=im, layout="wide")
 
-    # Set sidebar width and border
-    st.markdown(
-        """
-        <style>
-        .sidebar .sidebar-content {
-            width: 25%;
-            padding: 0 20px;
-            border-right: 1px solid #d0d0d0;
-        }
-        .stApp {
-            padding: 20px;
-            padding-left: 25%;
-            padding-right: 25%;
-        }
-        .login-box input[type="text"], .login-box input[type="password"] {
-            width: 200px !important;  /* Adjust the width as needed */
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    st.set_page_config(page_title="SkyCast Weather", page_icon=icon)
 
     # --- USER AUTHENTICATION ---
     names = ["Peter Parker", "Rebecca Miller"]
@@ -64,7 +73,7 @@ def main():
         hashed_passwords = pickle.load(file)
 
     authenticator = stauth.Authenticate(names, usernames, hashed_passwords,
-        "sales_dashboard", "abcdef", cookie_expiry_days=30)
+        "weather_dashboard", "abcdef", cookie_expiry_days=30)
 
     name, authentication_status, username = authenticator.login("Login", "main")
 
@@ -75,12 +84,11 @@ def main():
         st.warning("Please enter your username and password")
 
     if authentication_status:
-        # Call the weather display function here
+    
         weather_display()
-
-        # ---- SIDEBAR ----
-        authenticator.logout("Logout", "sidebar")
         st.sidebar.title(f"Welcome {name}")
+
+        authenticator.logout("Logout", "sidebar")
 
 if __name__ == '__main__':
     main()
