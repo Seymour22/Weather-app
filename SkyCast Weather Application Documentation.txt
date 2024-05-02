@@ -1,0 +1,10 @@
+
+Overview: The SkyCast Weather application is a web-based weather forecasting tool built using Streamlit. This application allows users to retrieve current weather data for a specific city and visualize the weather conditions using animations.
+
+Features of the app:
+    
+1) User Authentication: User authentication is implemented using Streamlit Authenticator to ensure secure access to the application.
+ 
+2) Weather Data Retrieval: The application fetches current weather data from the OpenWeatherMap API based on the user-provided city name.
+
+3) Weather Visualization: Weather conditions are visualized using Lottie animations. Different animations are displayed based on the weather description returned by the API.
