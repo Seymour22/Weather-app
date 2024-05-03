@@ -1,11 +1,16 @@
 import pickle
+import pandas as pd
 from pathlib import Path
 from PIL import Image
 import streamlit as st
 import streamlit_authenticator as stauth
-import requests
 from streamlit_lottie import st_lottie
 import json
+
+import requests
+import threading
+import time
+
 
 icon = Image.open("icon.png")
 
@@ -23,49 +28,63 @@ defaultweather=load_lottiefile('Animations/defaultweather.json')
 
 # Function to retrieve weather data from API
 def get_weather(city):
-    # Replace 'API_KEY' with your actual API key
     api_key = '82f2c5b88afed0120c09e5532e359422'
     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric'
     response = requests.get(url)
     data = response.json()
     return data
 
+# Display the weather  info and animation
 def weather_display():
     st.title('SkyCast Weather Display')
-    st.markdown("<p style='font-size: 30px; margin-bottom: 0.1px;'>Enter city name</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 30px; margin-bottom:0px;'>Enter city name</p>", unsafe_allow_html=True)
     city = st.text_input('', 'Cambridge, UK', max_chars=20)  # Default city, max_chars limits the input length
+    
+    #While True:
     weather_data = get_weather(city)
+    
+    
+    weather_description = weather_data['weather'][0]['description']
+    temperature = weather_data['main']['temp']
+    wind_speed = weather_data['wind']['speed']
+    humidity = weather_data['main']['humidity']
+
     if weather_data['cod'] == 200:
-        st.markdown(f"<p style='font-size: 24px;'>Weather in {city}: {weather_data['weather'][0]['description']}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='font-size: 24px;'>Temperature: {weather_data['main']['temp']} °C</p>", unsafe_allow_html=True)
+        st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Weather in {city}: {weather_description}</p>", unsafe_allow_html=True)
+        st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Temperature: {temperature} °C</p>", unsafe_allow_html=True)
+
+        st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Wind Speed: {wind_speed} m/s</p>", unsafe_allow_html=True)
+        st.write(f"<p style='font-size: 20px;'>Humidity: {humidity}%</p>", unsafe_allow_html=True)
+
     else:
         st.error('Failed to retrieve weather data.')
         
-    weather_description = weather_data['weather'][0]['description'].lower()
+    #Make lower case as first word varies Eg Partly cloudy and Cloudy
+    weather_description_l = weather_data['weather'][0]['description'].lower()
     
     
-    if 'cloud' in weather_description:
+    if 'cloud' in weather_description_l:
         st_lottie(partlycloudy,height=400, width=400)
-    elif 'rain' in weather_description:
+    elif 'rain' in weather_description_l:
         st_lottie(raining,height=400, width=400)
-    elif 'snow' in weather_description:
+    elif 'snow' in weather_description_l:
         st_lottie(snow,height=400, width=400)
-    elif 'fog' or 'haze' in weather_description:
+    elif 'fog' or 'haze' in weather_description_l:
         st_lottie(foghaze,height=400, width=400)
-    elif 'sun' in weather_description:
+    elif 'sun' in weather_description_l:
         st_lottie(sunny,height=400, width=400)
     else:
         st_lottie(defaultweather,height=400, width=400)
 
-    
+    #time.sleep(3)
 
 def main():
 
     st.set_page_config(page_title="SkyCast Weather", page_icon=icon)
 
-    # --- USER AUTHENTICATION ---
-    names = ["Peter Parker", "Rebecca Miller"]
-    usernames = ["pparker", "rmiller"]
+    userpw = pd.read_csv('usernopw.csv')
+    names = userpw['Customer name']
+    usernames = userpw['Username']
 
     # load hashed passwords
     file_path = Path(__file__).parent / "hashed_pw.pkl"
@@ -85,10 +104,11 @@ def main():
 
     if authentication_status:
     
+        
         weather_display()
         st.sidebar.title(f"Welcome {name}")
-
         authenticator.logout("Logout", "sidebar")
+            
 
 if __name__ == '__main__':
     main()

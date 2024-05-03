@@ -8,3 +8,14 @@ Features of the app:
 2) Weather Data Retrieval: The application fetches current weather data from the OpenWeatherMap API based on the user-provided city name.
 
 3) Weather Visualization: Weather conditions are visualized using Lottie animations. Different animations are displayed based on the weather description returned by the API.
+
+4) Trial usernames and passwords
+
+Username	Password
+lskywalker	abc123
+fbaggins	def456
+pbrown	        ghi789
+
+5) Deployed on AWS EC2 to be available online
+
+6) Tested on Firefox and Google Chrome.
