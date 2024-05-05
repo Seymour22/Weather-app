@@ -41,40 +41,43 @@ def weather_display():
     city = st.text_input('', 'Cambridge, UK', max_chars=20)  # Default city, max_chars limits the input length
     
     #While True:
-    weather_data = get_weather(city)
-    
-    
-    weather_description = weather_data['weather'][0]['description']
-    temperature = weather_data['main']['temp']
-    wind_speed = weather_data['wind']['speed']
-    humidity = weather_data['main']['humidity']
+    try:
+        weather_data = get_weather(city)
 
-    if weather_data['cod'] == 200:
-        st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Weather in {city}: {weather_description}</p>", unsafe_allow_html=True)
-        st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Temperature: {temperature} °C</p>", unsafe_allow_html=True)
-
-        st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Wind Speed: {wind_speed} m/s</p>", unsafe_allow_html=True)
-        st.write(f"<p style='font-size: 20px;'>Humidity: {humidity}%</p>", unsafe_allow_html=True)
-
-    else:
-        st.error('Failed to retrieve weather data.')
         
-    #Make lower case as first word varies Eg Partly cloudy and Cloudy
-    weather_description_l = weather_data['weather'][0]['description'].lower()
-    
-    
-    if 'cloud' in weather_description_l:
-        st_lottie(partlycloudy,height=400, width=400)
-    elif 'rain' in weather_description_l:
-        st_lottie(raining,height=400, width=400)
-    elif 'snow' in weather_description_l:
-        st_lottie(snow,height=400, width=400)
-    elif 'fog' or 'haze' in weather_description_l:
-        st_lottie(foghaze,height=400, width=400)
-    elif 'sun' in weather_description_l:
-        st_lottie(sunny,height=400, width=400)
-    else:
-        st_lottie(defaultweather,height=400, width=400)
+        weather_description = weather_data['weather'][0]['description']
+        temperature = weather_data['main']['temp']
+        wind_speed = weather_data['wind']['speed']
+        humidity = weather_data['main']['humidity']
+
+        if weather_data['cod'] == 200:
+            st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Weather in {city}: {weather_description}</p>", unsafe_allow_html=True)
+            st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Temperature: {temperature} °C</p>", unsafe_allow_html=True)
+
+            st.write(f"<p style='font-size: 20px;margin-bottom:0.01px;'>Wind Speed: {wind_speed} m/s</p>", unsafe_allow_html=True)
+            st.write(f"<p style='font-size: 20px;'>Humidity: {humidity}%</p>", unsafe_allow_html=True)
+
+            
+        #Make lower case as first word varies Eg Partly cloudy and Cloudy
+        weather_description_l = weather_data['weather'][0]['description'].lower()
+        
+        
+        if 'cloud' in weather_description_l:
+            st_lottie(partlycloudy,height=400, width=400)
+        elif 'rain' in weather_description_l:
+            st_lottie(raining,height=400, width=400)
+        elif 'snow' in weather_description_l:
+            st_lottie(snow,height=400, width=400)
+        elif 'fog' or 'haze' in weather_description_l:
+            st_lottie(foghaze,height=400, width=400)
+        elif 'sun' in weather_description_l:
+            st_lottie(sunny,height=400, width=400)
+        else:
+            st_lottie(defaultweather,height=400, width=400)
+            
+    except KeyError:
+        st.write("<p style='font-size: 20px;margin-bottom:0.01px;'>Invalid City.  Please try again</p>", unsafe_allow_html=True)
+
 
     #time.sleep(3)
 
@@ -112,4 +115,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
